@@ -44,9 +44,20 @@ class SMSReceiver : BroadcastReceiver() {
         val scope = CoroutineScope(Dispatchers.IO)
         scope.launch {
             try {
+
+                // SharedPreferences'dan token ve chatId'yi al
+                val sharedPreferences = context.getSharedPreferences("TelegramSettings", Context.MODE_PRIVATE)
+                val botToken = sharedPreferences.getString("token", "") ?: ""
+                val chatId = sharedPreferences.getString("chatId", "") ?: ""
+
+                if (botToken.isEmpty() || chatId.isEmpty()) {
+                    Log.e("TelegramSender", "Token veya ChatID ayarlanmamış")
+                    return@launch
+                }
+
                 // Telegram Bot API kullanarak mesaj gönderme
-                val botToken = "" // Telegram botunuzun token'ı
-                val chatId = "" // Hedef kanal veya grup ID'si
+//                val botToken = "" // Telegram botunuzun token'ı
+//                val chatId = "" // Hedef kanal veya grup ID'si
 
                 val encodedMessage = URLEncoder.encode(message, "UTF-8")
                 val url = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=$encodedMessage"

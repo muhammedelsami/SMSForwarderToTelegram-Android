@@ -12,9 +12,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.view.ViewGroup
 import android.widget.Button
+import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -40,6 +44,10 @@ class MainActivity : AppCompatActivity() {
         // Test butonu işleyicisi
         findViewById<Button>(R.id.btnTestMessage).setOnClickListener {
             sendTestMessage()
+        }
+
+        findViewById<Button>(R.id.btnSettings).setOnClickListener {
+            showSettingsDialog()
         }
     }
 
@@ -97,5 +105,41 @@ class MainActivity : AppCompatActivity() {
         }
 
         Toast.makeText(this, "SMS yönlendirme servisi başlatıldı", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showSettingsDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_settings)
+
+        val window = dialog.window
+        window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val etToken = dialog.findViewById<TextInputEditText>(R.id.etToken)
+        val etChatId = dialog.findViewById<TextInputEditText>(R.id.etChatId)
+        val btnSave = dialog.findViewById<Button>(R.id.btnSave)
+        val btnCancel = dialog.findViewById<Button>(R.id.btnCancel)
+
+        val sharedPreferences = getSharedPreferences("TelegramSettings", Context.MODE_PRIVATE)
+        etToken.setText(sharedPreferences.getString("token", ""))
+        etChatId.setText(sharedPreferences.getString("chatId", ""))
+
+        btnSave.setOnClickListener {
+            sharedPreferences.edit().apply {
+                putString("token", etToken.text.toString())
+                putString("chatId", etChatId.text.toString())
+                apply()
+            }
+            Toast.makeText(this, "Ayarlar kaydedildi", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }
